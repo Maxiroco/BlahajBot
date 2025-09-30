@@ -38,5 +38,12 @@ build/
 ### Mac OS ###
 .DS_Store
 
+# previous code shown to help me restart
+/src/main/java/previous
+
 # Environment files
 .env
+
+# Discord Rich Presence Plugin preferences
+.idea/discord.xml
+.idea/discordrp.xml
