@@ -1,4 +1,4 @@
-package me.maximilienchuat.commands.impl;
+package me.maximilienchuat.commands.impl.technical;
 
 import me.maximilienchuat.Whatever;
 import me.maximilienchuat.commands.core.*;

@@ -5,6 +5,8 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 
+import java.util.Objects;
+
 public class CommandContext {
     private final MessageReceivedEvent messageEvent;
     private final SlashCommandInteractionEvent slashEvent;
@@ -42,8 +44,8 @@ public class CommandContext {
     public boolean isSlash() { return slashEvent != null; }
 
     public MessageChannel getChannel() {
-        if (isMessage()) return messageEvent.getChannel();
-        if (isSlash()) return slashEvent.getChannel();
+        if (isMessage()) return Objects.requireNonNull(messageEvent).getChannel();
+        if (isSlash()) return Objects.requireNonNull(slashEvent).getChannel();
         throw new IllegalStateException("No valid channel");
     }
 
@@ -56,7 +58,7 @@ public class CommandContext {
     public void reply(String msg) {
         if (isMessage()) getChannel().sendMessage(msg).queue();
         else if (isSlash()) {
-            if (!slashEvent.isAcknowledged()) slashEvent.reply(msg).queue();
+            if (!Objects.requireNonNull(slashEvent).isAcknowledged()) slashEvent.reply(msg).queue();
             else slashEvent.getHook().sendMessage(msg).queue(); // follow-up if already replied
         }
     }

@@ -17,8 +17,7 @@ import org.jetbrains.annotations.NotNull;
                 @SlashArg(
                         name = "target",
                         description = "User to hug",
-                        type = OptionType.USER,
-                        required = false
+                        type = OptionType.USER
                 )
         }
 )

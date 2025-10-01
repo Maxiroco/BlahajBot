@@ -1,11 +1,9 @@
 package me.maximilienchuat.commands.core;
 
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -119,36 +117,8 @@ public class CommandRegistry {
         return (cmd instanceof SlashCommand) ? cmd : null;
     }
 
-    // ---------------- Prefix argument parsing ----------------
-    public Object parseArg(String raw, Class<?> type, MessageReceivedEvent event) {
-        if (type == String.class) return raw;
-
-        if (type == Integer.class) {
-            try { return Integer.parseInt(raw); }
-            catch (NumberFormatException e) { throw new IllegalArgumentException("Expected number, got: " + raw); }
-        }
-
-        if (type == User.class) {
-            if (!raw.matches("<@!?\\d+>")) throw new IllegalArgumentException("Invalid user mention: " + raw);
-            String id = raw.replaceAll("\\D", "");
-            User user = event.getJDA().getUserById(id);
-            if (user == null) throw new IllegalArgumentException("User not found: " + raw);
-            return user;
-        }
-
-        throw new IllegalArgumentException("Unsupported type: " + type.getSimpleName());
-    }
-
     // ---------------- Helper class ----------------
-    public static class PrefixMatchResult {
-        public final Command command;
-        public final int length;
-
-        public PrefixMatchResult(Command command, int length) {
-            this.command = command;
-            this.length = length;
-        }
-    }
+    public record PrefixMatchResult(Command command, int length) { }
 
     public PrefixMatchResult matchPrefixCommand(String[] parts) {
         Command matched = null;
@@ -182,6 +152,7 @@ public class CommandRegistry {
                 if (parts[0].equalsIgnoreCase(direct) && 1 > matchedLength) {
                     matched = cmd;
                     matchedLength = 1;
+                    break;
                 }
             }
         }
@@ -189,7 +160,7 @@ public class CommandRegistry {
         // Check root categories
         if (matched == null && rootCategories.containsKey(parts[0])) {
             CategoryCommand cat = rootCategories.get(parts[0]);
-            matched = new CategoryWrapperCommand(parts[0], cat, this, ""); // prefix can be passed later
+            matched = new CategoryWrapperCommand(parts[0], cat, this); // prefix can be passed later
             matchedLength = 1;
         }
 

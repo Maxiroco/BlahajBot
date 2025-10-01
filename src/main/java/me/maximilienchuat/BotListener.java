@@ -10,9 +10,6 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
-import java.util.Map;
-
-import static me.maximilienchuat.commands.core.CommandRegistry.logger;
 
 public class BotListener extends ListenerAdapter {
 
@@ -38,10 +35,10 @@ public class BotListener extends ListenerAdapter {
         // Delegate matching to CommandRegistry
         CommandRegistry.PrefixMatchResult result = registry.matchPrefixCommand(parts);
 
-        if (result.command != null) {
-            String[] args = Arrays.copyOfRange(parts, result.length, parts.length);
+        if (result.command() != null) {
+            String[] args = Arrays.copyOfRange(parts, result.length(), parts.length);
             try {
-                ((PrefixCommand) result.command).executePrefix(new CommandContext(event, args, prefix, registry));
+                ((PrefixCommand) result.command()).executePrefix(new CommandContext(event, args, prefix, registry));
             } catch (Exception e) {
                 event.getChannel().sendMessage("Error executing command").queue();
                 CommandRegistry.logger.error("Error executing prefix command: " + String.join(" ", parts), e);

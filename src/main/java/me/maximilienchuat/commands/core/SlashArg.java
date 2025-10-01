@@ -1,6 +1,5 @@
 package me.maximilienchuat.commands.core;
 
-
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 
 import java.lang.annotation.Retention;

@@ -27,23 +27,4 @@ public class CategoryCommand extends Command {
         if (cmd instanceof CategoryCommand cat) return cat;
         return null;
     }
-
-    // Prefix command traversal
-    public void executePrefix(CommandContext ctx) {
-        String[] args = ctx.getArgs();
-        if (args.length == 0) return;
-
-        Command sub = subcommands.get(args[0]);
-        if (sub instanceof PrefixCommand pc) {
-            String[] remaining = Arrays.copyOfRange(args, 1, args.length);
-            pc.executePrefix(new CommandContext(ctx.getMessageEvent(), remaining, ctx.getPrefix(), ctx.getRegistry()));
-        }
-    }
-
-    // Slash command traversal
-    public void executeSlash(CommandContext ctx) {
-        for (Command sub : subcommands.values()) {
-            if (sub instanceof SlashCommand sc) sc.executeSlash(ctx);
-        }
-    }
 }
