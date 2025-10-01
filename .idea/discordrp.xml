@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="io.github.pandier.intellijdiscordrp.settings.project.DiscordProjectSettingsComponent">
+    <option name="buttonEnabled" value="true" />
+    <option name="buttonText" value="Don't click this button" />
+    <option name="buttonUrl" value="https://github.com/Maxiroco/BlahajBot" />
+    <option name="displayMode" value="File" />
+    <option name="icon" value="https://tenor.com/view/niko-oneshot-ballin-teste-niko-ballin-gif-26110464.gif" />
+  </component>
+</project>

@@ -43,7 +43,3 @@ build/
 
 # Environment files
 .env
-
-# Discord Rich Presence Plugin preferences
-.idea/discord.xml
-.idea/discordrp.xml
