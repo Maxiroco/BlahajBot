@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Map;
 
 @CommandInfo(
-        paths = {"help"},
+        paths = {"help", "settings/help"},
         description = "List all available prefix commands",
         directPaths = {"help"}
 )

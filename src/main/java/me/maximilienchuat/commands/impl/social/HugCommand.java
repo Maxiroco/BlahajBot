@@ -1,4 +1,4 @@
-package me.maximilienchuat.commands.impl;
+package me.maximilienchuat.commands.impl.social;
 
 import me.maximilienchuat.commands.core.*;
 import net.dv8tion.jda.api.entities.User;
@@ -7,7 +7,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import org.jetbrains.annotations.NotNull;
 
 @CommandInfo(
-        paths = {"react/hug", "money/cuddle", "ball/balls/balled", "hug"},
+        paths = {"fun/hug", "hug"},
         description = "Send a hug",
         directPaths = {"hug"}, // only "hug" will appear in direct commands
         args = {

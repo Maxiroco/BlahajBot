@@ -1,14 +1,13 @@
 package me.maximilienchuat.commands.impl.technical;
 
-import me.maximilienchuat.Whatever;
+import me.maximilienchuat.BlahajBot;
 import me.maximilienchuat.commands.core.*;
 import net.dv8tion.jda.api.entities.Guild;
 import org.jetbrains.annotations.NotNull;
 
 @CommandInfo(
         paths = {"settings/prefix"},
-        description = "Change the server prefix",
-        directPaths = {}
+        description = "Change the server prefix"
 )
 public class ChangePrefixCommand extends Command implements PrefixCommand {
 
@@ -22,7 +21,7 @@ public class ChangePrefixCommand extends Command implements PrefixCommand {
 
         String newPrefix = args[0];
         Guild guild = ctx.getMessageEvent().getGuild();
-        Whatever.getSettingsManager().setPrefix(guild, newPrefix);
+        BlahajBot.getSettingsManager().setPrefix(guild, newPrefix);
 
         ctx.reply("Prefix changed to `" + newPrefix + "`");
     }

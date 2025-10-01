@@ -41,7 +41,7 @@ public class BotListener extends ListenerAdapter {
                 ((PrefixCommand) result.command()).executePrefix(new CommandContext(event, args, prefix, registry));
             } catch (Exception e) {
                 event.getChannel().sendMessage("Error executing command").queue();
-                CommandRegistry.logger.error("Error executing prefix command: " + String.join(" ", parts), e);
+                CommandRegistry.logger.error("Error executing prefix command: {}", String.join(" ", parts), e);
             }
         } else {
             event.getChannel().sendMessage("Command not found: " + String.join(" ", parts)

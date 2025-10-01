@@ -8,13 +8,7 @@ import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import io.github.cdimascio.dotenv.Dotenv;
 
-public class Whatever {
-
-    private static CommandRegistry registry;
-
-    public static CommandRegistry getRegistry() {
-        return registry;
-    }
+public class BlahajBot {
 
     private static GuildSettingsManager settingsManager;
 
