@@ -10,23 +10,30 @@ public class CommandContext {
     private final SlashCommandInteractionEvent slashEvent;
     private final String[] args;
     private final String prefix;
+    private final CommandRegistry registry;
 
     // Constructor for prefix (message) commands
 
-    public CommandContext(MessageReceivedEvent event, String[] args, String prefix) {
+    public CommandContext(MessageReceivedEvent event, String[] args, String prefix, CommandRegistry registry) {
         this.messageEvent = event;
         this.slashEvent = null;
         this.args = args != null ? args : new String[0];
         this.prefix = prefix;
+        this.registry = registry;
     }
 
 
-    public CommandContext(SlashCommandInteractionEvent event, String[] args, String prefix) {
+    public CommandContext(SlashCommandInteractionEvent event, String[] args, String prefix, CommandRegistry registry) {
         this.messageEvent = null;
         this.slashEvent = event;
         this.args = args != null ? args : new String[0];
         this.prefix = prefix;
+        this.registry = registry;
     }
+
+
+
+    public CommandRegistry getRegistry() { return registry; }
 
     public String getPrefix() { return prefix; }
 

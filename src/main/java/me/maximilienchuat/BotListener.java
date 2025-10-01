@@ -1,6 +1,7 @@
 package me.maximilienchuat;
 
 import me.maximilienchuat.commands.core.*;
+import me.maximilienchuat.settings.GuildSettingsManager;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -16,12 +17,13 @@ import static me.maximilienchuat.commands.core.CommandRegistry.logger;
 public class BotListener extends ListenerAdapter {
 
     private final CommandRegistry registry;
+    GuildSettingsManager settingsManager;
     String prefix;
 
-    public BotListener(CommandRegistry registry) {
+    public BotListener(CommandRegistry registry, GuildSettingsManager settingsManager) {
         this.registry = registry;
+        this.settingsManager = settingsManager;
     }
-
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
         if (event.getAuthor().isBot()) return;
@@ -39,7 +41,7 @@ public class BotListener extends ListenerAdapter {
         if (result.command != null) {
             String[] args = Arrays.copyOfRange(parts, result.length, parts.length);
             try {
-                ((PrefixCommand) result.command).executePrefix(new CommandContext(event, args, prefix));
+                ((PrefixCommand) result.command).executePrefix(new CommandContext(event, args, prefix, registry));
             } catch (Exception e) {
                 event.getChannel().sendMessage("Error executing command").queue();
                 CommandRegistry.logger.error("Error executing prefix command: " + String.join(" ", parts), e);
@@ -61,15 +63,14 @@ public class BotListener extends ListenerAdapter {
             String[] args = event.getOptions().stream()
                     .map(OptionMapping::getAsString)
                     .toArray(String[]::new);
-            ((SlashCommand) cmd).executeSlash(new CommandContext(event, args, prefix));
+            ((SlashCommand) cmd).executeSlash(new CommandContext(event, args, prefix, registry));
         } else {
             event.reply("Command not found or not slashable").queue();
         }
     }
 
     private String getPrefixForGuild(Guild guild) {
-        // TODO: replace with actual per-guild storage
-        return "b."; // default prefix
+        return settingsManager.getPrefix(guild);
     }
 
 

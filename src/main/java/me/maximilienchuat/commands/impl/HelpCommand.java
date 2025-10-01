@@ -1,6 +1,5 @@
 package me.maximilienchuat.commands.impl;
 
-import me.maximilienchuat.Whatever;
 import me.maximilienchuat.commands.core.*;
 import org.jetbrains.annotations.NotNull;
 
@@ -17,7 +16,7 @@ public class HelpCommand extends Command implements PrefixCommand {
 
     @Override
     public void executePrefix(@NotNull CommandContext ctx) {
-        CommandRegistry registry = Whatever.getRegistry();
+        CommandRegistry registry = ctx.getRegistry(); // use context registry
         String[] args = ctx.getArgs();
         String botPrefix = ctx.getPrefix();
         StringBuilder sb = new StringBuilder();
@@ -56,21 +55,20 @@ public class HelpCommand extends Command implements PrefixCommand {
             }
 
             sb.append("Commands in category **").append(categoryName).append("**:\n");
-            // displayPath = categoryName, prefix = botPrefix
-            appendCategory(sb, categoryName, cat, "  ", botPrefix);
+            appendCategory(sb, categoryName, cat, "  ", botPrefix, registry);
             ctx.reply(sb.toString());
         }
     }
 
     // Recursive category listing with proper prefix and indentation
-    private void appendCategory(StringBuilder sb, String pathSoFar, CategoryCommand cat, String indent, String prefix) {
+    private void appendCategory(StringBuilder sb, String pathSoFar, CategoryCommand cat, String indent, String prefix, CommandRegistry registry) {
         for (Map.Entry<String, Command> entry : cat.getSubcommands().entrySet()) {
             Command sub = entry.getValue();
             String fullPath = pathSoFar + "/" + entry.getKey();
 
             if (sub instanceof CategoryCommand subCat) {
                 sb.append(indent).append("**").append(entry.getKey()).append("**\n");
-                appendCategory(sb, fullPath, subCat, indent + "  ", prefix);
+                appendCategory(sb, fullPath, subCat, indent + "  ", prefix, registry);
             } else if (sub instanceof PrefixCommand) {
                 CommandInfo info = sub.getClass().getAnnotation(CommandInfo.class);
                 String desc = (info != null) ? info.description() : "";

@@ -36,7 +36,7 @@ public class CategoryCommand extends Command {
         Command sub = subcommands.get(args[0]);
         if (sub instanceof PrefixCommand pc) {
             String[] remaining = Arrays.copyOfRange(args, 1, args.length);
-            pc.executePrefix(new CommandContext(ctx.getMessageEvent(), remaining, ctx.getPrefix()));
+            pc.executePrefix(new CommandContext(ctx.getMessageEvent(), remaining, ctx.getPrefix(), ctx.getRegistry()));
         }
     }
 
