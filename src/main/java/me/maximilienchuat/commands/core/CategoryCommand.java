@@ -28,7 +28,7 @@ public class CategoryCommand extends Command {
         return null;
     }
 
-    // New traversal for prefix commands
+    // Prefix command traversal
     public void executePrefix(CommandContext ctx) {
         String[] args = ctx.getArgs();
         if (args.length == 0) return;
@@ -40,12 +40,10 @@ public class CategoryCommand extends Command {
         }
     }
 
-    // New traversal for slash commands
+    // Slash command traversal
     public void executeSlash(CommandContext ctx) {
         for (Command sub : subcommands.values()) {
-            if (sub instanceof SlashCommand sc) {
-                sc.executeSlash(ctx);
-            }
+            if (sub instanceof SlashCommand sc) sc.executeSlash(ctx);
         }
     }
 }

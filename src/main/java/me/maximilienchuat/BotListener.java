@@ -1,6 +1,7 @@
 package me.maximilienchuat;
 
 import me.maximilienchuat.commands.core.*;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -15,73 +16,30 @@ import static me.maximilienchuat.commands.core.CommandRegistry.logger;
 public class BotListener extends ListenerAdapter {
 
     private final CommandRegistry registry;
-    private final String prefix;
+    String prefix;
 
-    public BotListener(CommandRegistry registry, String prefix) {
+    public BotListener(CommandRegistry registry) {
         this.registry = registry;
-        this.prefix = prefix;
     }
 
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
         if (event.getAuthor().isBot()) return;
 
+        String prefix = getPrefixForGuild(event.getGuild()); // stub for per-guild prefix
         String msg = event.getMessage().getContentRaw();
         if (!msg.startsWith(prefix)) return;
 
         String[] parts = msg.substring(prefix.length()).trim().split("\\s+");
         if (parts.length == 0) return;
 
-        CommandRegistry registry = Whatever.getRegistry();
-        Command matched = null;
-        int matchedLength = 0;
+        // Delegate matching to CommandRegistry
+        CommandRegistry.PrefixMatchResult result = registry.matchPrefixCommand(parts);
 
-        // Search all commands (direct commands + leaf commands)
-        for (Command cmd : registry.getAllCommands().values()) {
-            if (!(cmd instanceof PrefixCommand)) continue;
-
-            CommandInfo info = cmd.getClass().getAnnotation(CommandInfo.class);
-            if (info != null) {
-                // Check declared paths
-                for (String path : info.paths()) {
-                    String[] pathParts = path.split("/");
-
-                    if (parts.length >= pathParts.length) {
-                        boolean match = true;
-                        for (int i = 0; i < pathParts.length; i++) {
-                            if (!parts[i].equalsIgnoreCase(pathParts[i])) {
-                                match = false;
-                                break;
-                            }
-                        }
-                        if (match && pathParts.length > matchedLength) {
-                            matched = cmd;
-                            matchedLength = pathParts.length;
-                        }
-                    }
-                }
-
-                // Check directPaths (single-word commands)
-                for (String direct : info.directPaths()) {
-                    if (parts[0].equalsIgnoreCase(direct) && 1 > matchedLength) {
-                        matched = cmd;
-                        matchedLength = 1;
-                    }
-                }
-            }
-        }
-
-        // --- If no leaf matched, check root categories ---
-        if (matched == null && registry.getRootCategories().containsKey(parts[0])) {
-            CategoryCommand cat = registry.getRootCategories().get(parts[0]);
-            matched = new CategoryWrapperCommand(parts[0], cat, registry, prefix);
-            matchedLength = 1;
-        }
-
-        if (matched != null) {
-            String[] args = Arrays.copyOfRange(parts, matchedLength, parts.length);
+        if (result.command != null) {
+            String[] args = Arrays.copyOfRange(parts, result.length, parts.length);
             try {
-                ((PrefixCommand) matched).executePrefix(new CommandContext(event, args, prefix));
+                ((PrefixCommand) result.command).executePrefix(new CommandContext(event, args, prefix));
             } catch (Exception e) {
                 event.getChannel().sendMessage("Error executing command").queue();
                 CommandRegistry.logger.error("Error executing prefix command: " + String.join(" ", parts), e);
@@ -91,6 +49,7 @@ public class BotListener extends ListenerAdapter {
                     + "\nType " + prefix + "help for the list of available commands").queue();
         }
     }
+
 
 
 
@@ -107,5 +66,11 @@ public class BotListener extends ListenerAdapter {
             event.reply("Command not found or not slashable").queue();
         }
     }
+
+    private String getPrefixForGuild(Guild guild) {
+        // TODO: replace with actual per-guild storage
+        return "b."; // default prefix
+    }
+
 
 }

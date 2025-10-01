@@ -9,10 +9,6 @@ public class CategoryWrapperCommand extends Command implements PrefixCommand {
     private final CommandRegistry registry;
     private final String displayPrefix;
 
-    public CategoryWrapperCommand(String categoryName, CategoryCommand category, CommandRegistry registry) {
-        this(categoryName, category, registry, "b."); // default display prefix
-    }
-
     public CategoryWrapperCommand(String categoryName, CategoryCommand category, CommandRegistry registry, String displayPrefix) {
         this.categoryName = categoryName;
         this.category = category;
@@ -24,8 +20,10 @@ public class CategoryWrapperCommand extends Command implements PrefixCommand {
     public void executePrefix(@NotNull CommandContext ctx) {
         StringBuilder sb = new StringBuilder();
         sb.append("Commands in category **").append(categoryName).append("**:\n");
-        registry.appendCategoryPublic(sb, displayPrefix + categoryName, category, "  "); // pass full prefix here
+        // displayPath = categoryName only, prefix = "b."
+        registry.appendCategory(sb, displayPrefix, categoryName, category, "  ");
         ctx.reply(sb.toString());
     }
-}
 
+
+}

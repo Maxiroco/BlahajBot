@@ -9,7 +9,7 @@ import java.util.Map;
 @CommandInfo(
         paths = {"help"},
         description = "List all available prefix commands",
-        directPaths = {"help"} // only "hug" will appear in direct commands
+        directPaths = {"help"}
 )
 public class HelpCommand extends Command implements PrefixCommand {
 
@@ -19,25 +19,21 @@ public class HelpCommand extends Command implements PrefixCommand {
     public void executePrefix(@NotNull CommandContext ctx) {
         CommandRegistry registry = Whatever.getRegistry();
         String[] args = ctx.getArgs();
+        String botPrefix = ctx.getPrefix();
         StringBuilder sb = new StringBuilder();
-        String botPrefix = ctx.getPrefix(); // make sure you have getPrefix() in CommandContext
 
         if (args.length == 0) {
             sb.append("Available prefix commands:\n\n");
 
-            // List category commands (ignore single-path direct commands)
+            // List category commands
             sb.append("List of available category commands:\n");
             for (Map.Entry<String, CategoryCommand> entry : registry.getRootCategories().entrySet()) {
                 CategoryCommand cat = entry.getValue();
-                Command cmdAtRoot = cat.getSubcommands().get(entry.getKey());
-                boolean isDirect = cmdAtRoot != null && cmdAtRoot.getClass().isAnnotationPresent(CommandInfo.class)
-                        && cmdAtRoot.getClass().getAnnotation(CommandInfo.class).directPaths().length > 0;
-
-                if (cat.getSubcommands().isEmpty() || isDirect) continue;
-                sb.append("`").append(botPrefix).append(entry.getKey()).append("`\n"); // <-- prepend prefix here
+                if (cat.getSubcommands().isEmpty()) continue;
+                sb.append("`").append(botPrefix).append(entry.getKey()).append("`\n");
             }
 
-            // Direct commands
+            // List direct commands
             sb.append("\nList of available direct commands:\n");
             for (Map.Entry<String, Command> entry : registry.getAllCommands().entrySet()) {
                 Command cmd = entry.getValue();
@@ -45,14 +41,13 @@ public class HelpCommand extends Command implements PrefixCommand {
                 CommandInfo info = cmd.getClass().getAnnotation(CommandInfo.class);
                 if (info == null || info.directPaths().length == 0) continue;
 
-                String desc = info.description();
-                sb.append("`").append(botPrefix).append(entry.getKey()).append("` - ").append(desc).append("\n");
+                sb.append("`").append(botPrefix).append(entry.getKey()).append("` - ").append(info.description()).append("\n");
             }
 
             ctx.reply(sb.toString());
 
         } else {
-            // Category-specific help
+            // Help for a specific category
             String categoryName = args[0];
             CategoryCommand cat = registry.getRootCategories().get(categoryName);
             if (cat == null) {
@@ -61,36 +56,17 @@ public class HelpCommand extends Command implements PrefixCommand {
             }
 
             sb.append("Commands in category **").append(categoryName).append("**:\n");
-            appendCategory(sb, botPrefix + categoryName, cat, "  ");
+            // displayPath = categoryName, prefix = botPrefix
+            appendCategory(sb, categoryName, cat, "  ", botPrefix);
             ctx.reply(sb.toString());
         }
     }
 
-
-    private void appendCategory(StringBuilder sb, String pathSoFar, CategoryCommand cat, String indent) {
-        for (Map.Entry<String, Command> entry : cat.getSubcommands().entrySet()) {
-            Command sub = entry.getValue();
-            String fullPath = pathSoFar + "/" + entry.getKey();
-
-            if (sub instanceof CategoryCommand subCat) {
-                sb.append(indent).append("**").append(entry.getKey()).append("**\n");
-                appendCategory(sb, fullPath, subCat, indent + "  ");
-            } else if (sub instanceof PrefixCommand) {
-                CommandInfo info = sub.getClass().getAnnotation(CommandInfo.class);
-                String desc = (info != null) ? info.description() : "";
-                sb.append(indent).append("`").append(fullPath.replace("/", " ")).append("` - ").append(desc).append("\n");
-            }
-        }
-    }
-
-
-
-
-
+    // Recursive category listing with proper prefix and indentation
     private void appendCategory(StringBuilder sb, String pathSoFar, CategoryCommand cat, String indent, String prefix) {
         for (Map.Entry<String, Command> entry : cat.getSubcommands().entrySet()) {
             Command sub = entry.getValue();
-            String fullPath = pathSoFar.isEmpty() ? entry.getKey() : pathSoFar + "/" + entry.getKey();
+            String fullPath = pathSoFar + "/" + entry.getKey();
 
             if (sub instanceof CategoryCommand subCat) {
                 sb.append(indent).append("**").append(entry.getKey()).append("**\n");
@@ -98,27 +74,11 @@ public class HelpCommand extends Command implements PrefixCommand {
             } else if (sub instanceof PrefixCommand) {
                 CommandInfo info = sub.getClass().getAnnotation(CommandInfo.class);
                 String desc = (info != null) ? info.description() : "";
-                sb.append(indent).append("`").append(prefix).append(fullPath.replace("/", " ")).append("` - ").append(desc).append("\n");
+                sb.append(indent)
+                        .append("`").append(prefix).append(fullPath.replace("/", " ")).append("`")
+                        .append(desc.isEmpty() ? "" : " - " + desc)
+                        .append("\n");
             }
         }
-    }
-
-
-
-    // Check if a command is inside any category
-    private boolean isInCategory(String cmdName, CommandRegistry registry) {
-        for (CategoryCommand cat : registry.getRootCategories().values()) {
-            if (containsCommand(cat, cmdName)) return true;
-        }
-        return false;
-    }
-
-    private boolean containsCommand(CategoryCommand cat, String cmdName) {
-        for (Map.Entry<String, Command> entry : cat.getSubcommands().entrySet()) {
-            Command sub = entry.getValue();
-            if (entry.getKey().equals(cmdName)) return true;
-            if (sub instanceof CategoryCommand subCat && containsCommand(subCat, cmdName)) return true;
-        }
-        return false;
     }
 }

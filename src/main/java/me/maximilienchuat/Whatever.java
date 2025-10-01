@@ -18,7 +18,6 @@ public class Whatever {
     public static void main(String[] args) throws InterruptedException {
         Dotenv dotenv = Dotenv.load();
         String token = dotenv.get("DISCORD_TOKEN");
-        String PREFIX = "b.";
 
         registry = new CommandRegistry();
         registry.discoverAndRegister("me.maximilienchuat.commands.impl");
@@ -26,7 +25,7 @@ public class Whatever {
         JDA bot = JDABuilder.createDefault(token)
                 .enableIntents(GatewayIntent.MESSAGE_CONTENT)
                 .setActivity(Activity.playing("with your mom"))
-                .addEventListeners(new BotListener(registry, PREFIX))
+                .addEventListeners(new BotListener(registry)) // no prefix here
                 .build();
 
         bot.awaitReady();
